@@ -106,7 +106,52 @@ def init_figure(rows,cols,proview,constrained_layout=True,figsize=(16,8),**kwarg
     pro :    projection
         Projection chosen   
     """
-    #Defaults for Satellite
+   
+    # Choose Projection
+    projection = choose_projection(proview)
+
+    fig, ax = plt.subplots(rows, cols,figsize=figsize, constrained_layout=constrained_layout , \
+                           subplot_kw={ "projection": projection},**kwargs)
+    
+    print(' Opening figure , %i rows and %i cols \n' % (rows,cols))
+    
+    return fig,ax,projection
+
+def choose_projection(proview):
+    '''
+    Auxiliary routine to select projection
+
+    Parameters
+    ----------
+    proview :    
+        Projection for the map
+
+        * String:
+            - *"Pacific"*,   cartopy PlateCarree, central longitude 180   
+            - *"Atlantic"*,  cartopy PlateCarree, central longitude 0      
+            - *"NHStereoEurope"*,  NH Stereo, central longitude 0     
+            - *"NHStereoAmerica"*,  NH Stereo, central longitude 90   
+            - *"SHStereoAfrica"*,  NH Stereo, central longitude 0
+            - *"RobPacific"*,   Robinson, central longitude 180   
+            - *"RobAtlantic"*,  Robinson, central longitude 0   
+
+        * Dictionary:
+            For projections requiring more parameters. The first element
+            in the dictionary is the name of the projection followed by the parameters required
+
+            -  projection: 'Satellite':
+                - centlon:  Central Longitude
+                - centlat:  Central Latitude
+                - height:   Altitude of the view (m)
+
+
+    Returns
+    -------
+    projection :     
+        Projection object   
+    '''
+
+#Defaults for Satellite
     default_satellite = {'centlon': 0.0, 'centlat': 0.0, 'z': 35785831}
    
     # This fixes the projection for the mapping: 
@@ -138,19 +183,16 @@ def init_figure(rows,cols,proview,constrained_layout=True,figsize=(16,8),**kwarg
     else:
         print(' Error in init_figure projection {}'.format(proview))
         raise SystemExit
+    
     #Store View in projection
     projection.view = proview
+    
+    return projection
 
-    fig, ax = plt.subplots(rows, cols,figsize=figsize, constrained_layout=constrained_layout, \
-                           subplot_kw={ "projection": projection},**kwargs)
-    
-    print(' Opening figure , %i rows and %i cols \n' % (rows,cols))
-    
-    return fig,ax,projection
 
 @d.get_sections(base='xmap')
 @d.dedent
-def xmap(data, cont, pro, ax=None, fill=True,contour=True, \
+def xmap(data, cont, prol, ax=None, fill=True,contour=True, \
                     data_cent_lon=180, \
                     clabel=True, c_format = ' {:6.0f} ', \
                     lonlabel=None,latlabel=None,\
@@ -184,8 +226,9 @@ def xmap(data, cont, pro, ax=None, fill=True,contour=True, \
         * [ c1,c2, ..., cn]      fixed contours at [ c1,c2, ..., cn] 
         * n                      n contours 
         * []                     automatic choice  
-    pro :
-        Map Projection as initialized by init
+    prol :
+        Map Projection as initialized by init or it can be
+        a string, one of the options in `figinit`
     data_cent_lon :
         Central longitude for the data projection
     latlabel:
@@ -273,6 +316,11 @@ def xmap(data, cont, pro, ax=None, fill=True,contour=True, \
         opt_lonlabel =  defaultLonLabel
 
     #Projection
+    if isinstance(prol,str):
+        pro = choose_projection(prol)
+        ax.projection = pro
+    else:
+        pro = prol
     this = pro.__class__.__name__
 
     # Set data projection
@@ -307,12 +355,12 @@ def xmap(data, cont, pro, ax=None, fill=True,contour=True, \
         ax.set_xlim(xlim)
     elif this in ['NorthPolarStereo','SouthPolarStereo']:
         if xlimit is  None:
-            xlim = (np.amin(data.lon.values)-180,np.amax(data.lon.values)-180+0.001)
+            xlim = [np.amin(data.lon.values)-180,np.amax(data.lon.values)-180+0.001]
         else:
             xlim=xlimit
             
         if ylimit is  None:
-            ylim = (np.amin(data.lat.values),np.amax(data.lat.values))
+            ylim = [np.amin(data.lat.values),np.amax(data.lat.values)]
         else:
             ylim=ylimit
         print(' Plotting with x limits {}  '.format(xlim)  ) 
