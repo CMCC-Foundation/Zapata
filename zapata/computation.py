@@ -196,6 +196,8 @@ def anomaly(var,option='anom',freq='month'):
     anom :  xarray
 
     """
+    # Correction for very small standard deviations
+    TINY = 1.0e-14
 
     frequency = 'time.' + freq
     if option == 'deviation':
@@ -211,7 +213,7 @@ def anomaly(var,option='anom',freq='month'):
         anom = xr.apply_ufunc(lambda x, m, s: (x - m) / s,
                 var.groupby(frequency),
                 clim,
-                climstd )
+                climstd + TINY)
     else:
         print(' Wrong option in `anomaly` {}'.format(option))
         raise SystemExit
@@ -275,8 +277,7 @@ class Xmat():
         self.A = X.stack(z=dims).transpose()
         self._ntime = len(X.time.data)
         self._npoints = len(X.stack(z=dims).z.data)
-        print(' Created mathematical matrix A, \n \
-                stacked along dimensions {} '.format(dims))
+        print('Created data Matrix X, stacked along dimensions {} '.format(dims))
         if self._opt == 'DropNaN':
             self.A = self.A.dropna(dim='z')
             print(' Creating Matrix with Drop NaN values')
@@ -289,7 +290,7 @@ class Xmat():
 
     def __repr__(self):
         '''  Printing Information '''
-        print(' \n Math Data Matrix \n {} \n'.format(self.A))
+        print(f' \n Math Data Matrix \n {self.A}\n')
         print(f' Shape of A numpy array {self.A.shape}')
         return  '\n'
     

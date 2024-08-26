@@ -24,7 +24,7 @@ Detailed Description:
 '''
 import math as mp
 from operator import is_
-import sys
+from collections import namedtuple
 import cartopy.crs as car
 import cartopy.util as utl
 
@@ -151,27 +151,31 @@ def choose_projection(proview):
         Projection object   
     '''
 
-#Defaults for Satellite
+    #Defaults for Satellite
     default_satellite = {'centlon': 0.0, 'centlat': 0.0, 'z': 35785831}
    
     # This fixes the projection for the mapping: 
     #      Data Projection is then fixed in mapping routine
     # Select Projection parameters
     if isinstance(proview,str):
-        if   proview == 'Pacific':
-            projection = car.PlateCarree(central_longitude=180.)
-        elif proview == 'Atlantic':
-            projection = car.PlateCarree(central_longitude=0.)
-        elif proview == 'NHStereoEurope':
-            projection = car.NorthPolarStereo(central_longitude=0.)
-        elif proview == 'NHStereoAmerica':
-            projection = car.NorthPolarStereo(central_longitude=-90.)
-        elif proview == 'SHStereoAfrica':
-            projection = car.SouthPolarStereo(central_longitude=90.)
-        elif proview == 'RobAtlantic':
-            projection = car.Robinson(central_longitude=0.)
-        elif proview == 'RobPacific':
-            projection = car.Robinson(central_longitude=180.)
+        match proview:
+            case 'Pacific':
+                projection = car.PlateCarree(central_longitude=180.)
+            case 'Atlantic':
+                projection = car.PlateCarree(central_longitude=0.)
+            case 'NHStereoEurope':
+                projection = car.NorthPolarStereo(central_longitude=0.)
+            case 'NHStereoAmerica':
+                projection = car.NorthPolarStereo(central_longitude=-90.)
+            case 'SHStereoAfrica':
+                projection = car.SouthPolarStereo(central_longitude=90.)
+            case 'RobAtlantic':
+                projection = car.Robinson(central_longitude=0.)
+            case 'RobPacific':
+                projection = car.Robinson(central_longitude=180.)
+            case _:
+                print(f' Error in init_figure projection {proview}')
+                print(f'It should be one of the following: Pacific, Atlantic, NHStereoEurope, NHStereoAmerica, SHStereoAfrica, RobAtlantic, RobPacific')
     elif isinstance(proview,dict):
         temp = { **default_satellite,**proview}
         print(temp['z'])
@@ -202,7 +206,8 @@ def xmap(data, cont, prol, ax=None, fill=True,contour=True, \
                     cyclic=False,\
                     colorbar=False,cmap='coolwarm',\
                     coasts=True,color_land='lightgray',\
-                    quiet=True,\
+                    quiet=True,
+                    custom=False,\
                     label_style={}):
     """
     Mapping function based on cartopy and matplotlib.
@@ -273,6 +278,8 @@ def xmap(data, cont, prol, ax=None, fill=True,contour=True, \
         The projection used is the geographical projection `pro`
     quiet:
         (False)  Suppress all output
+    custom:
+        (False)  Return a named tuple with full detail on the plot, including handles, gl etc...
     
     
     Returns
@@ -360,7 +367,11 @@ def xmap(data, cont, prol, ax=None, fill=True,contour=True, \
             xlim=xlimit
             
         if ylimit is  None:
-            ylim = [np.amin(data.lat.values),np.amax(data.lat.values)]
+            match this:
+                case 'NorthPolarStereo':
+                    ylim = [20,90]
+                case 'SouthPolarStereo':
+                    ylim = [-90,-20]
         else:
             ylim=ylimit
         print(' Plotting with x limits {}  '.format(xlim)  ) 
@@ -386,11 +397,11 @@ def xmap(data, cont, prol, ax=None, fill=True,contour=True, \
 
     cc = choose_contour(vmin,vmax,cont)
     if not quiet:
+        print(title)
         print(f'Contouring from {vmin.data} to {vmax.data} with {cc} contours')
     if cc is None:
         print(f'******** Constant field ***********')
         return None
-
 
     handles = dict()
     if fill:
@@ -434,7 +445,12 @@ def xmap(data, cont, prol, ax=None, fill=True,contour=True, \
         cax = divider.append_axes('right',size="2.5%", pad=0.2, axes_class=plt.Axes)
         ax.get_figure().colorbar(handles['filled'], cax=cax,orientation='vertical')
     
-    return handles  
+    # Choose output
+    Output = namedtuple('Output', 'handles gl' )
+    if custom:
+        return Output(handles,gl)
+    else:
+        return handles
 
 @d.get_sections(base='zonal_plot')
 @d.dedent
@@ -665,7 +681,7 @@ def choose_contour(vmin,vmax,cont):
     """
     if len(cont) == 3:
         print("Setting Fixed Contours")
-        cc=np.arange(cont[0]-cont[2],cont[1]+2*cont[2],cont[2])
+        cc=np.arange(cont[0],cont[1]+cont[2],cont[2])
         print(' Contouring from ', cont[0], '  to', cont[1],' with interval  ',cont[2])  
     elif len(cont)> 3:
         cc=cont

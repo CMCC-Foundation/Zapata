@@ -27,6 +27,7 @@ The module `data` contains the information on the data banks. The routine `DataG
 **koopman** :
     Routines for Koopman decomposition and eigenvalues handling
 
+    Version 2.1
 """
 import warnings
 warnings.simplefilter('ignore')

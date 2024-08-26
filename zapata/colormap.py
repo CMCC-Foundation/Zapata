@@ -29,7 +29,7 @@ import numpy as np
 from lxml import etree
 
 homedir = os.path.expanduser("~")
-COLPATHDIR = homedir + '/Dropbox (CMCC)/GitHub/Zapata/zapata/SciVis_colormaps'
+COLPATHDIR = homedir + '/Dropbox (CMCC)/ZapataLibrary/Zapata/zapata/SciVis_colormaps'
 
 def make_cmap(xml,colpath=COLPATHDIR):
     '''
