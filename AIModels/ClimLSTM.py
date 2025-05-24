@@ -101,8 +101,6 @@ class ClimLSTM(nn.Module):
         # h0 = torch.randn(1, nb, self.hidden_size,dtype=torch.float64) # hidden state
         # c0 = torch.randn(1, nb, self.hidden_size,dtype=torch.float64) # cell state
         output, _ = self.lstm(x) 
-    
-        out = self.relu(output)
         out = self.fc_1(output) # first dense
         
         return out

@@ -1,6 +1,6 @@
 '''
-Private version of the InformerForPrediction class
-==================================================
+Modified version of the InformerForPrediction class
+===================================================
 
 This modules contains routines modified from the original InformerForPrediction class
 from the Huggingface library. The modifications are made to allow for the use of the
@@ -8,8 +8,37 @@ InformerModel class in the training and prediction of time series data with weig
 deterministic loss functions. The original Informer prediction classes can be found at
 `https://huggingface.co/docs/transformers/main/model_doc/informer`.
 
-Utilities 
----------
+Main Modifications:
+-------------------
+
+1. The InformerForPrediction class has been modified to allow for the use of deterministic
+loss functions and weights in the training of time series data. The modifications are made
+to the forward method of the class. The original forward method is replaced with a new
+forward method that allows for the use of deterministic loss functions and weights in the
+training of time series data. The new forward method also allows for the use of the
+InformerModel class in the training and prediction of time series data with weights and
+deterministic loss functions.
+
+2. The generate method of the InformerForPrediction class has been modified to allow for
+the use of deterministic loss functions and weights in the training of time series data. The
+modifications are made to the generate method of the class. The original generate method is
+replaced with a new generate method that allows for the use of deterministic loss functions
+and weights in the training of time series data.
+
+3. The output_distribution method of the InformerForPrediction class has been modified to
+allow for the use of deterministic loss functions and weights in the training of time series
+data. The modifications are made to the output_distribution method of the class. The original
+output_distribution method is replaced with a new output_distribution method that allows for
+the use of deterministic loss functions and weights in the training of time series data.
+
+4. The InformerForPrediction class has been modified to allow for the use of deterministic
+loss functions and weights in the training of time series data. The modifications are made
+to the forward method of the class. The original forward method is replaced with a new
+forward method that allows for the use of deterministic loss functions and weights in the
+training of time series data. The new forward method also allows for the use of the
+InformerModel class in the training and prediction of time series data with weights and
+deterministic loss functions.
+
 
 '''
 
@@ -31,6 +60,7 @@ from transformers.models.informer.modeling_informer import InformerMeanScaler, I
 from transformers.models.informer.modeling_informer import InformerFeatureEmbedder
 from transformers.models.informer.modeling_informer import InformerEncoder, InformerDecoder
 
+import AIModels.AIClasses as aic
 
 class InformerModel(InformerPreTrainedModel):
     def __init__(self, config: InformerConfig):
@@ -64,21 +94,28 @@ class InformerModel(InformerPreTrainedModel):
         self, sequence: torch.Tensor, subsequences_length: int, shift: int = 0
     ) -> torch.Tensor:
         """
-        Returns lagged subsequences of a given sequence. Returns a tensor of shape (N, S, C, I),
-            where S = subsequences_length and I = len(indices), containing lagged subsequences. Specifically, lagged[i,
-            j, :, k] = sequence[i, -indices[k]-S+j, :].
+        Returns lagged subsequences of a given sequence
 
-        Args:
+        PARAMETERS
+        ----------
             sequence: Tensor
                 The sequence from which lagged subsequences should be extracted. Shape: (N, T, C).
             subsequences_length : int
                 Length of the subsequences to be extracted.
             shift: int
                 Shift the lags by this amount back.
+
+        RETURNS
+        -------
+            Tensor:
+                Returns a tensor of shape (N, S, C, I),
+                where S = subsequences_length and I = len(indices), containing lagged subsequences. Specifically, lagged[i,
+                j, :, k] = sequence[i, -indices[k]-S+j, :].
+
         """
         sequence_length = sequence.shape[1]
-        indices = [lag - shift for lag in self.config.lags_sequence]
-
+        indices = [lag - shift for lag in self.config.lags_sequence ]
+        # print(f'indices {indices}')
         if max(indices) + subsequences_length > sequence_length:
             raise ValueError(
                 f"lags cannot go further than history length, found lag {max(indices)} "
@@ -90,6 +127,8 @@ class InformerModel(InformerPreTrainedModel):
             begin_index = -lag_index - subsequences_length
             end_index = -lag_index if lag_index > 0 else None
             lagged_values.append(sequence[:, begin_index:end_index, ...])
+            # print(f'begin_index {begin_index} end_index {end_index} {sequence[:, begin_index:end_index, ...].shape}')
+            # print(f'sequence {sequence.shape} {begin_index} {end_index} {sequence[:, begin_index:end_index, ...].shape}')
         return torch.stack(lagged_values, dim=-1)
 
     def create_network_inputs(
@@ -123,17 +162,9 @@ class InformerModel(InformerPreTrainedModel):
         observed_context = past_observed_mask[:, -self.config.context_length :]
         _, loc, scale = self.scaler(context, observed_context)
 
-        #Allow for different input and output features
-        if future_values is not None:
-            if(self.config.input_size != self.config.output_size):
-                batch_size, seq_len, _ = future_values.shape
-                kaz = torch.zeros(batch_size,seq_len,self.config.input_size,device=torch.device('mps'))
-                kaz[...,:self.config.output_size] = future_values[...,:self.config.output_size]
-            else:
-                kaz = future_values
 
         inputs = (
-            (torch.cat((past_values, kaz), dim=1) - loc) / scale
+            (torch.cat((past_values, future_values), dim=1) - loc) / scale
             if future_values is not None
             else (past_values - loc) / scale
         )
@@ -147,22 +178,25 @@ class InformerModel(InformerPreTrainedModel):
             static_feat = torch.cat((static_real_features, static_feat), dim=1)
         if static_categorical_features is not None:
             embedded_cat = self.embedder(static_categorical_features)
+            print(f'Embedded {embedded_cat.shape} {static_feat.shape}')
             static_feat = torch.cat((embedded_cat, static_feat), dim=1)
         expanded_static_feat = static_feat.unsqueeze(1).expand(-1, time_feat.shape[1], -1)
 
         # all features
         features = torch.cat((expanded_static_feat, time_feat), dim=-1)
-
+        # print(f'features {features.shape} {expanded_static_feat.shape} {time_feat.shape}')
         # lagged features
         subsequences_length = (
             self.config.context_length + self.config.prediction_length
             if future_values is not None
             else self.config.context_length
         )
+        # print(f'CreateInputs--1 {inputs.shape} {subsequences_length}')
         lagged_sequence = self.get_lagged_subsequences(sequence=inputs, subsequences_length=subsequences_length)
+        
         lags_shape = lagged_sequence.shape
         reshaped_lagged_sequence = lagged_sequence.reshape(lags_shape[0], lags_shape[1], -1)
-
+        # print(f'CreateInputs {reshaped_lagged_sequence.shape} {lagged_sequence.shape}')
         if reshaped_lagged_sequence.shape[1] != time_feat.shape[1]:
             raise ValueError(
                 f"input length {reshaped_lagged_sequence.shape[1]} and time feature lengths {time_feat.shape[1]} does not match"
@@ -249,6 +283,7 @@ class InformerModel(InformerPreTrainedModel):
 
         if encoder_outputs is None:
             enc_input = transformer_inputs[:, : self.config.context_length, ...]
+            
             encoder_outputs = self.encoder(
                 inputs_embeds=enc_input,
                 head_mask=head_mask,
@@ -312,6 +347,9 @@ class InformerForPrediction(InformerPreTrainedModel):
 
         self.parameter_projection = self.distribution_output.get_parameter_projection(self.model.config.d_model)
         self.target_shape = self.distribution_output.event_shape
+# Positional Embedding
+        if config.pos_embedding_dim is not None:
+            self.pos_embedding = aic.FeaturePositionalEmbedding(config.input_size, embedding_dim=config.pos_embedding_dim)
 
         if config.loss == "nll":
             self.loss = nll
@@ -411,7 +449,12 @@ class InformerForPrediction(InformerPreTrainedModel):
         return_dict = return_dict if return_dict is not None else self.config.use_return_dict
         if future_values is not None:
             use_cache = False
-
+        if self.config.pos_embedding_dim is not None:
+            past_values = self.pos_embedding(past_values)
+            if future_values is not None:
+                future_values = self.pos_embedding(future_values)
+            past_time_features = self.pos_embedding(past_time_features)
+            future_time_features = self.pos_embedding(future_time_features)
         outputs = self.model(
             past_values=past_values,
             past_time_features=past_time_features,
@@ -451,18 +494,19 @@ class InformerForPrediction(InformerPreTrainedModel):
                 loss_weights = future_observed_mask
             else:
                 loss_weights, _ = future_observed_mask.min(dim=-1, keepdim=False)
-            # print(f'loss_weights shape is {loss_weights.shape}')
-            # # Generate the initial sequence
-            if self.config.loss_weight is not None:
-                # bsize,tsize = loss_weights.shape
-                # # initial_sequence = (torch.arange(tsize+1, 1, -1), dtype=torch.float32, device='mps')**32
-                # initial_sequence = (torch.zeros((bsize,tsize), dtype=torch.float32, device='mps'))
-                # initial_sequence[:,0] = 1
-                loss_weights = self.config.loss_weight 
-                # Normalize the weights so they sum to 1
-                # loss_weights = initial_sequence / initial_sequence.sum().repeat(bsize,1)
-            # print(f'W  is {loss_weights}')
-            prediction_loss = weighted_average(loss, weights=loss_weights)
+            
+            # Apply discount
+            if self.config.discount is not None:
+                batch_size, _, nfeatures = future_values.shape
+                Wu = [self.config.discount ** i for i in range(future_values.shape[1])]
+                W = torch.tensor(Wu).unsqueeze(0).to(future_values.device)
+                W = W.repeat(batch_size, 1)
+                # print(f'Discounted values applied {Wu}') 
+            else:
+                raise ValueError(f"Unknown discount value {self.config.discount}")
+           
+            
+            prediction_loss = weighted_average(loss, weights=loss_weights*W)
 
         if not return_dict:
             outputs = ((params,) + outputs[1:]) if params is not None else outputs[1:]
