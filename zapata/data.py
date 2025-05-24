@@ -28,71 +28,71 @@ d = docrep.DocstringProcessor()
 
 
 
-def read_month(dataset, vardir,var1,level,yy,mm,type,option,verbose=False):
-    """
-    A routine to read one month of data from various datasets.
+# def read_month(dataset, vardir,var1,level,yy,mm,type,option,verbose=False):
+#     """
+#     A routine to read one month of data from various datasets.
     
-    This routine will read data one month at a time from various data sets
-    described in *DataGrid()*
+#     This routine will read data one month at a time from various data sets
+#     described in *DataGrid()*
     
-    Parameters
-    ----------
-    dataset :   
-        Name of the dataset, ``ERA5``, ``GPCP``  
+#     Parameters
+#     ----------
+#     dataset :   
+#         Name of the dataset, ``ERA5``, ``GPCP``  
 
-    vardir :   
-        Path to the dataset 
+#     vardir :   
+#         Path to the dataset 
 
-    var1 :   
-        Variable to extract 
+#     var1 :   
+#         Variable to extract 
 
-    level :   
-        Level of the Variable   
+#     level :   
+#         Level of the Variable   
 
-    yy :    
-        Year
+#     yy :    
+#         Year
     
-    mm :    
-        Month
+#     mm :    
+#         Month
 
-    type :   
-        Type of data to reay. Currently hardwired to ``npy``
+#     type :   
+#         Type of data to reay. Currently hardwired to ``npy``
 
-    option :    
-        'Celsius'     For temperature Transform to Celsius
+#     option :    
+#         'Celsius'     For temperature Transform to Celsius
     
-    verbose: 
-        Tons of Output
+#     verbose: 
+#         Tons of Output
     
-    Returns
-    --------
+#     Returns
+#     --------
     
-    average :
-        Monthly data. 
+#     average :
+#         Monthly data. 
     
-    Examples
-    --------
+#     Examples
+#     --------
     
-    >>> read_month('ERA5','.','Z','500',1979,12,'npy',[],verbose=verbose)
-    >>> read_month('GPCP','.','TPREP','SURF',1979,12,'nc',[],verbose=verbose) 
-    >>> read_month('ERA5','.','T','850',1979,12,'npy',option=Celsius,verbose=verbose)
-    """
-    info=DataGrid()
-    if dataset == 'ERA5':
- #       def adddir(name,dir):
- #   return dir +'/' + name.split('.')[0]+'.npy'
-        fil1=lib.adddir(lib.makemm(var1,str(level),yy,mm),info[dataset]['place'])
-        if verbose: print(fil1)
-        if var1 == 'T' and option == 'Celsius':
-            data1=np.load(fil1) - 273.16
-        else:
-            data1=np.load(fil1)
-    elif dataset == 'GPCP':       
-        file = info[dataset]['place'] + '/gpcp_cdr_v23rB1_y' + str(yy) + '_m' + '{:02d}'.format(mm) + '.nc'      
-        data1 = net.Dataset(file).variables["precip"][:,:]
-    else:
-        Print(' Error in read_month, datset set as {}'.format(dataset))
-    return data1
+#     >>> read_month('ERA5','.','Z','500',1979,12,'npy',[],verbose=verbose)
+#     >>> read_month('GPCP','.','TPREP','SURF',1979,12,'nc',[],verbose=verbose) 
+#     >>> read_month('ERA5','.','T','850',1979,12,'npy',option=Celsius,verbose=verbose)
+#     """
+#     info=DataGrid()
+#     if dataset == 'ERA5':
+#  #       def adddir(name,dir):
+#  #   return dir +'/' + name.split('.')[0]+'.npy'
+#         fil1=lib.adddir(lib.makemm(var1,str(level),yy,mm),info[dataset]['place'])
+#         if verbose: print(fil1)
+#         if var1 == 'T' and option == 'Celsius':
+#             data1=np.load(fil1) - 273.16
+#         else:
+#             data1=np.load(fil1)
+#     elif dataset == 'GPCP':       
+#         file = info[dataset]['place'] + '/gpcp_cdr_v23rB1_y' + str(yy) + '_m' + '{:02d}'.format(mm) + '.nc'      
+#         data1 = net.Dataset(file).variables["precip"][:,:]
+#     else:
+#         Print(' Error in read_month, datset set as {}'.format(dataset))
+#     return data1
 
 def date_param():
     """ 
@@ -326,265 +326,264 @@ def DataGrid(option=None):
     return grid
 
 
-def readvar_grid(region='globe',dataset='ERA5',var='Z',level='500',season='JAN',Celsius=False,verbose=False):
-    """
-    Read Variable from data sets
+# def readvar_grid(region='globe',dataset='ERA5',var='Z',level='500',season='JAN',Celsius=False,verbose=False):
+#     """
+#     Read Variable from data sets
     
-    Parameters
-    ----------
+#     Parameters
+#     ----------
 
-    region :    
-        *globe* for global maps, or [east, west, north, south]
-        for limited region, longitude 0-360
-    dataset :   
-         name of data set
-    var :   
-         variable name
-    level : 
-        level, either a value or 'SURF' for surface fields
+#     region :    
+#         *globe* for global maps, or [east, west, north, south]
+#         for limited region, longitude 0-360
+#     dataset :   
+#          name of data set
+#     var :   
+#          variable name
+#     level : 
+#         level, either a value or 'SURF' for surface fields
 
-    season :    
-        Month ('JAN') or season (,'DJF') or annual 'ANN')
+#     season :    
+#         Month ('JAN') or season (,'DJF') or annual 'ANN')
      
-    Celsius :   
-        True/False for temperature transform to Celsius
+#     Celsius :   
+#         True/False for temperature transform to Celsius
     
-    verbose :   
-        True/False -- tons of output
+#     verbose :   
+#         True/False -- tons of output
 
-    Returns
-    -------
+#     Returns
+#     -------
 
-    xdat : numpy    
-        array data 
-    nlon :  
-        Number of longitudes
-    nlat :  
-        Number of Latitudes
-    lat :   
-        Latitudes
-    lon :   
-        Longitudes
+#     xdat : numpy    
+#         array data 
+#     nlon :  
+#         Number of longitudes
+#     nlat :  
+#         Number of Latitudes
+#     lat :   
+#         Latitudes
+#     lon :   
+#         Longitudes
 
-    Examples
-    --------
+#     Examples
+#     --------
 
-    >>> readvar_grid(region='globe',dataset='ERA5',var='Z',level='500',season='JAN',Celsius=False,verbose=False)
-    >>> readvar_grid(region='globe',dataset='ERA5',var='SST',level='SURF',season='JAN',Celsius=True,verbose=False)
-    """
+#     >>> readvar_grid(region='globe',dataset='ERA5',var='Z',level='500',season='JAN',Celsius=False,verbose=False)
+#     >>> readvar_grid(region='globe',dataset='ERA5',var='SST',level='SURF',season='JAN',Celsius=True,verbose=False)
+#     """
     
-    vardir = '.'
+#     vardir = '.'
 
-    dat=date_param()
+#     dat=date_param()
 
-    grid = DataGrid()
-    nlat = grid[dataset]['nlat']
-    nlon = grid[dataset]['nlon']
+#     grid = DataGrid()
+#     nlat = grid[dataset]['nlat']
+#     nlon = grid[dataset]['nlon']
 
-    lat = grid[dataset]['latnp']
-    lon = grid[dataset]['lonnp']
-    #Correct for longitude in ERA5
-    if dataset =='ERA5':
-        lon=lon[:-1]
-    sv=None
-    try:
-        sv=grid[dataset]['special_value']
-        if verbose: print('  Using Special Value ---->', sv)
-    except:
-        print('  Special Value not defined for dataset {}'.format(dataset))
+#     lat = grid[dataset]['latnp']
+#     lon = grid[dataset]['lonnp']
+#     #Correct for longitude in ERA5
+#     if dataset =='ERA5':
+#         lon=lon[:-1]
+#     sv=None
+#     try:
+#         sv=grid[dataset]['special_value']
+#         if verbose: print('  Using Special Value ---->', sv)
+#     except:
+#         print('  Special Value not defined for dataset {}'.format(dataset))
         
-    ys=grid[dataset][var]['start']
-    ye=grid[dataset][var]['end']
-    ys=1979
-    ye=2018
-    lname=grid[dataset][var]['longname']
+#     ys=grid[dataset][var]['start']
+#     ye=grid[dataset][var]['end']
+#     ys=1979
+#     ye=2018
+#     lname=grid[dataset][var]['longname']
 
-    nyears= ye-ys
-    years =[i for i in range(ys,ye+1)]
+#     nyears= ye-ys
+#     years =[i for i in range(ys,ye+1)]
 
-    factor=grid[dataset][var]['factor']
+#     factor=grid[dataset][var]['factor']
 
-    xdat= np.zeros([nlat,nlon,nyears+1])
+#     xdat= np.zeros([nlat,nlon,nyears+1])
 
-    for tim in years:
-        itim =years.index(tim)
-        dat=date_param()
-        mon=dat[season]['month_index']
-        if verbose:
-            print(' Plotting ' + var + ' from dataset ' + dataset)
-            print('Printing year  ', tim)
-        #
-        if len(mon) > 1:
-            if verbose: print('Mean on these months: {}'.format(mon))
-            temp= np.zeros([nlat,nlon,len(mon)])
-            for k in range(len(mon)):
-                temp[:,:,k]=read_month(dataset,vardir,var,level,tim,mon[k],'npy',[],verbose=verbose) 
-            xdat[:,:,itim]=np.mean(temp,axis=2)
-        else:
-            xdat[:,:,itim]=read_month(dataset, vardir,var,level,tim,mon[0],'npy',[],verbose=verbose) 
+#     for tim in years:
+#         itim =years.index(tim)
+#         dat=date_param()
+#         mon=dat[season]['month_index']
+#         if verbose:
+#             print(' Plotting ' + var + ' from dataset ' + dataset)
+#             print('Printing year  ', tim)
+#         #
+#         if len(mon) > 1:
+#             if verbose: print('Mean on these months: {}'.format(mon))
+#             temp= np.zeros([nlat,nlon,len(mon)])
+#             for k in range(len(mon)):
+#                 temp[:,:,k]=read_month(dataset,vardir,var,level,tim,mon[k],'npy',[],verbose=verbose) 
+#             xdat[:,:,itim]=np.mean(temp,axis=2)
+#         else:
+#             xdat[:,:,itim]=read_month(dataset, vardir,var,level,tim,mon[0],'npy',[],verbose=verbose) 
 
-    return xdat,nlon, nlat,lat,lon,sv
+#     return xdat,nlon, nlat,lat,lon,sv
 
-def read_xarray(dataset='ERA5',region='globe',var='Z',level='500',season='DJF',verbose=False):
-    '''
-    Read npy files from data and generates xarray.
+# def read_xarray(dataset='ERA5',region='globe',var='Z',level='500',season='DJF',verbose=False):
+#     '''
+#     Read npy files from data and generates xarray.
 
-    This a xarray implementation of read_var. It always grabs the global data.
+#     This a xarray implementation of read_var. It always grabs the global data.
 
-    Parameters
-    ----------
-    dataset :   
-        Name of data set   
-    region: 
-        Select region   
-        * *globe*, Entire globe
-        * [East, West, North, South], Specific Region
-    var :   
-         variable name
-    level : 
-        level, either a value or 'SURF' for surface fields
+#     Parameters
+#     ----------
+#     dataset :   
+#         Name of data set   
+#     region: 
+#         Select region   
+#         * *globe*, Entire globe
+#         * [East, West, North, South], Specific Region
+#     var :   
+#          variable name
+#     level : 
+#         level, either a value or 'SURF' for surface fields
 
-    season :    
-        Month ('JAN') or season (,'DJF') or annual 'ANN'), or 'ALL' for every year
-    verbose:    
-        True/False -- Tons of Output
+#     season :    
+#         Month ('JAN') or season (,'DJF') or annual 'ANN'), or 'ALL' for every year
+#     verbose:    
+#         True/False -- Tons of Output
 
-    Returns
-    -------
-    out : xarray   
-        array data 
+#     Returns
+#     -------
+#     out : xarray   
+#         array data 
     
-    '''
+#     '''
     
-    if season != 'ALL':
-        xdat,nlon, nlat,lat,lon,sv=readvar_grid(region='globe',dataset=dataset, \
-                            var=var,level=level,season=season,Celsius=False,verbose=verbose)
-        times = pd.date_range('1979-01-01', periods=40,freq='YS')
-    elif season == 'ALL':
-        xdat,nlon, nlat,lat,lon,sv=readvar_year(region='globe',dataset=dataset, \
-                            var=var,level=level,period='all',Celsius=False,verbose=verbose)
-        times = pd.date_range('1979-01-01', periods=480,freq='MS')
+#     if season != 'ALL':
+#         xdat,nlon, nlat,lat,lon,sv=readvar_grid(region='globe',dataset=dataset, \
+#                             var=var,level=level,season=season,Celsius=False,verbose=verbose)
+#         times = pd.date_range('1979-01-01', periods=40,freq='YS')
+#     elif season == 'ALL':
+#         xdat,nlon, nlat,lat,lon,sv=readvar_year(region='globe',dataset=dataset, \
+#                             var=var,level=level,period='all',Celsius=False,verbose=verbose)
+#         times = pd.date_range('1979-01-01', periods=480,freq='MS')
     
-    out = xr.DataArray(xdat, coords=[lat, lon, times], dims=['lat','lon','time'])
-    if sv:
-        out=xr.where(out == sv, np.nan, out)
-    if region != 'globe':
-        out = out.sel(lon = slice(region[0],region[1]), lat = slice(region[2],region[3]))
+#     out = xr.DataArray(xdat, coords=[lat, lon, times], dims=['lat','lon','time'])
+#     if sv:
+#         out=xr.where(out == sv, np.nan, out)
+#     if region != 'globe':
+#         out = out.sel(lon = slice(region[0],region[1]), lat = slice(region[2],region[3]))
 
     
-    return out
+#     return out
 
-def read_dataset(dataset='ERA5',region='globe',var='Z',level='500',season='DJF',verbose=False):
-    '''
-    Similar to `read_xarray` but returns a ``xarray DataSet``
+# def read_dataset(dataset='ERA5',region='globe',var='Z',level='500',season='DJF',verbose=False):
+#     '''
+#     Similar to `read_xarray` but returns a ``xarray DataSet``
     
-    '''
+#     '''
     
-    out = read_xarray(dataset=dataset, region=region, \
-                            var=var,level=level,season=season,verbose=verbose)
-    ds = xr.Dataset({var: out})
-    return ds
+#     out = read_xarray(dataset=dataset, region=region, \
+#                             var=var,level=level,season=season,verbose=verbose)
+#     ds = xr.Dataset({var: out})
+#     return ds
 
-def readvar_year(region='globe',period='all',dataset='ERA5',var='Z',level='500',
-                 Celsius=False,verbose=False):
-    """
-    Read Variable from data banks, all month, no averaging
+# def readvar_year(region='globe',period='all',dataset='ERA5',var='Z',level='500',
+#                  Celsius=False,verbose=False):
+#     """
+#     Read Variable from data banks, all month, no averaging
     
-    Parameters
-    ----------
+#     Parameters
+#     ----------
+#     Region :    
+#         'globe' for global maps, or [east, west, north, south]
+#         for limited region, longitude 0-360
+#     dataset :   
+#          name of data set
+#     var :   
+#          variable name
+#     level : 
+#         level, either a value or 'SURF' for surface fields
 
-    region :    
-        'globe' for global maps, or [east, west, north, south]
-        for limited region, longitude 0-360
-    dataset :   
-         name of data set
-    var :   
-         variable name
-    level : 
-        level, either a value or 'SURF' for surface fields
-
-    period :    
-        Time period to be read  
-            * 'all' Every time level in databank  
-            * [start_year,end_year] period in those years
+#     period :    
+#         Time period to be read  
+#             * 'all' Every time level in databank  
+#             * [start_year,end_year] period in those years
      
-    Celsius :   
-        True/False for temperature transform to Celsius
+#     Celsius :   
+#         True/False for temperature transform to Celsius
     
-    verbose :   
-        True/False -- tons of output
+#     verbose :   
+#         True/False -- tons of output
 
-    Returns
-    -------
+#     Returns
+#     -------
 
-    xdat : numpy    
-        array data 
-    nlon :  
-        Number of longitudes
-    nlat :  
-        Number of Latitudes
-    lat :   
-        Latitudes
-    lon :   
-        Longitudes
+#     xdat : numpy    
+#         array data 
+#     nlon :  
+#         Number of longitudes
+#     nlat :  
+#         Number of Latitudes
+#     lat :   
+#         Latitudes
+#     lon :   
+#         Longitudes
 
-    Examples
-    --------
+#     Examples
+#     --------
 
-    >>> readvar_year(region='globe',dataset='ERA5',var='Z',level='500',season='JAN',Celsius=False,verbose=False)
-    >>> readvar_year(region='globe',dataset='ERA5',var='SST',level='SURF',season='JAN',Celsius=True,verbose=False)
-    """
+#     >>> readvar_year(region='globe',dataset='ERA5',var='Z',level='500',season='JAN',Celsius=False,verbose=False)
+#     >>> readvar_year(region='globe',dataset='ERA5',var='SST',level='SURF',season='JAN',Celsius=True,verbose=False)
+#     """
     
-    vardir = '.'
+#     vardir = '.'
 
-    dat=date_param()
+#     dat=date_param()
 
-    grid = DataGrid()
-    nlat = grid[dataset]['nlat']
-    nlon = grid[dataset]['nlon']
+#     grid = DataGrid()
+#     nlat = grid[dataset]['nlat']
+#     nlon = grid[dataset]['nlon']
 
-    lat = grid[dataset]['latnp']
-    lon = grid[dataset]['lonnp']
-    #Correct for longitude in ERA5
-    if dataset =='ERA5':
-        lon=lon[:-1]
-    sv=None
-    try:
-        sv=grid[dataset]['special_value']
-        if verbose: print('  Using Special Value ---->', sv)
-    except:
-        print('  Special Value not defined for dataset {}'.format(dataset))
+#     lat = grid[dataset]['latnp']
+#     lon = grid[dataset]['lonnp']
+#     #Correct for longitude in ERA5
+#     if dataset =='ERA5':
+#         lon=lon[:-1]
+#     sv=None
+#     try:
+#         sv=grid[dataset]['special_value']
+#         if verbose: print('  Using Special Value ---->', sv)
+#     except:
+#         print('  Special Value not defined for dataset {}'.format(dataset))
 
-    ys=grid[dataset][var]['start']
-    ye=grid[dataset][var]['end']
-    ys=1979
-    ye=2018
-    lname=grid[dataset][var]['longname']
-    #Choose period
-    if period =='all':
-        nyears= ye-ys
-        years =[i for i in range(ys,ye+1)]
-    else:
-        nyears= period[1]-period[0]
-        years =[i for i in range(period[0],period[1]+1)]
+#     ys=grid[dataset][var]['start']
+#     ye=grid[dataset][var]['end']
+#     ys=1979
+#     ye=2018
+#     lname=grid[dataset][var]['longname']
+#     #Choose period
+#     if period =='all':
+#         nyears= ye-ys
+#         years =[i for i in range(ys,ye+1)]
+#     else:
+#         nyears= period[1]-period[0]
+#         years =[i for i in range(period[0],period[1]+1)]
 
-    factor=grid[dataset][var]['factor']
+#     factor=grid[dataset][var]['factor']
 
-    xdat= np.zeros([nlat,nlon,12*(nyears+1)])
+#     xdat= np.zeros([nlat,nlon,12*(nyears+1)])
    
-    itim=0
-    dat=date_param()
-    mon=dat['ANN']['month_index']
-    if verbose : print(' Reading ' + var + ' from databank ' + dataset)
-    for tim in years:
-        print('Reading year  ', tim)
-        for imon in mon:       
-            if verbose : print('Reading mon  ', imon)
-            xdat[:,:,itim]=read_month(dataset,vardir,var,level,tim,mon[imon-1],'npy',[],verbose=verbose)            
-            if verbose : print('Reading time  ', itim)
-            itim = itim + 1
+#     itim=0
+#     dat=date_param()
+#     mon=dat['ANN']['month_index']
+#     if verbose : print(' Reading ' + var + ' from databank ' + dataset)
+#     for tim in years:
+#         print('Reading year  ', tim)
+#         for imon in mon:       
+#             if verbose : print('Reading mon  ', imon)
+#             xdat[:,:,itim]=read_month(dataset,vardir,var,level,tim,mon[imon-1],'npy',[],verbose=verbose)            
+#             if verbose : print('Reading time  ', itim)
+#             itim = itim + 1
 
-    return xdat,nlon, nlat,lat,lon,sv
+#     return xdat,nlon, nlat,lat,lon,sv
 
 @d.get_sections(base='read_era5', sections=['Parameters', 'Returns'])
 @d.dedent
@@ -626,6 +625,7 @@ def read_era5(var,lev,period='JAN',epoch='AFT', loc = ' ',averaging=True,verbose
         * 'BCK' -- Only backward period 1950-1978
         * 'AFT' -- Current period 1979 - 2019
         * 'ALL' -- Combine the two
+        * 'V5'  -- ERA5 V5 1940-2022
     loc:    
         Location of the root directory for the data set
     averaging:
@@ -647,8 +647,9 @@ def read_era5(var,lev,period='JAN',epoch='AFT', loc = ' ',averaging=True,verbose
     else:
         flev = lev
 
-    filbck =loc + dash + var + dash +var+ udl + flev + udl + 'ER5BCK.nc'
-    filaft =loc + dash + var + dash +var+ udl + flev + udl + 'ER5AFT.nc'
+    filbck =loc + dash + var.upper() + dash +var+ udl + flev + udl + 'ER5BCK.nc'
+    filaft =loc + dash + var.upper() + dash +var+ udl + flev + udl + 'ER5AFT.nc'
+    filV5 =loc + dash + var.upper() + dash +var+ udl + flev + udl + 'V5.nc'
 
     if epoch == 'AFT':
         dat = xr.open_dataset(filaft)
@@ -661,11 +662,18 @@ def read_era5(var,lev,period='JAN',epoch='AFT', loc = ' ',averaging=True,verbose
         dat2 = xr.open_dataset(filbck)
         dat = xr.concat([dat2,dat1],dim='time')
         enddat=pd.to_datetime(["2019-12-01"])[0]
+    elif epoch == 'V5':
+        dat = xr.open_dataset(filV5)
+        enddat=pd.to_datetime(["2022-12-01"])[0]
     else:
         SystemError(f'Wrong Period choice')
+    
+
+    # If time has another name change it
+    if 'valid_time' in dat.dims:
+        dat = dat.rename({'valid_time':'time'})
     if verbose:
         print(f'Selected data from {dat.time[0].data} to {dat.time[-1].data} \n')
-
 
     if period != 'ANN':
         perlab,fr = decode_period(period)
@@ -679,7 +687,7 @@ def read_era5(var,lev,period='JAN',epoch='AFT', loc = ' ',averaging=True,verbose
         
     #Adjust names
     dat = dat.rename({'longitude':'lon','latitude':'lat'})
-
+    
     return dat
 
 def decode_period(period):
@@ -713,7 +721,8 @@ def in_data(var,lev,dataset='ERA5',period='JAN',epoch='AFT', loc = ' ',averaging
     dataset:
         Data set to be read:
         *   'ERA5' -- Monthly mean Reanalysis
-        *   'CERES' -- CERES Satellite Tadiance Product
+        *   'CERES' -- CERES Satellite Radiance Product 
+        *   'GPCP' -- GPCP Precipitation
 
     %(read_era5.parameters)s   
     
@@ -723,7 +732,7 @@ def in_data(var,lev,dataset='ERA5',period='JAN',epoch='AFT', loc = ' ',averaging
     %(read_era5.returns)s
 
     '''
-    if use_cache and verbose:
+    if use_cache and verbose and period != 'ANN':
         print('Using cache ..\n')
 
     # Consider cache only for ERA5
@@ -735,7 +744,7 @@ def in_data(var,lev,dataset='ERA5',period='JAN',epoch='AFT', loc = ' ',averaging
     udl =  '_'
    
     cdir = loc + dash + 'DATA_CACHE' 
-    file = cdir + dash + var+ udl + lev + udl + epoch + udl+ period + udl + str(averaging) + '.nc'
+    file = cdir + dash + var.upper() + udl + lev + udl + epoch + udl+ period + udl + str(averaging) + '.nc'
     # Create cache Directory
     try:
         os.mkdir(cdir)
@@ -762,47 +771,49 @@ def in_data(var,lev,dataset='ERA5',period='JAN',epoch='AFT', loc = ' ',averaging
             res = read_era5(var,lev,period=period,epoch=epoch, loc = loc,averaging=averaging,verbose=verbose)
         elif dataset == 'CERES':
             res = read_ceres(var,lev,period=period,epoch=epoch, loc = loc,averaging=averaging,verbose=verbose)
+        elif dataset == 'GPCP':
+            res = read_GPCP(var,lev,period=period,epoch=epoch, loc = loc,averaging=averaging,verbose=verbose)
         else:
             print(f' Wrong choice in `in_data`')
 
     return res
 
-def in_zonal(var,avedim=['time','lon'],**kw):
-    '''
-    Read Zonally Averaged Sections
+# def in_zonal(var,avedim=['time','lon'],**kw):
+#     '''
+#     Read Zonally Averaged Sections
     
-    Examples
-    --------
-    >>> in_zonal(var,period='DJF',epoch='AFT', loc = ' ',averaging=True)
-    '''
+#     Examples
+#     --------
+#     >>> in_zonal(var,period='DJF',epoch='AFT', loc = ' ',averaging=True)
+#     '''
 
 
-    totlev = [ '10','50','100','150','200','250','300','400','500','600','700','850','925','1000']
-    first_lev= totlev[0]
-    print(f'Treating level  {var} {first_lev}')
-    if avedim:
-        dd = in_data(var,first_lev,**kw).mean(dim=avedim)
-    else:
-        dd = in_data(var,first_lev,**kw)
-    zon=dd.expand_dims('pressure').assign_coords(pressure=[float(totlev[0])])
+#     totlev = [ '10','50','100','150','200','250','300','400','500','600','700','850','925','1000']
+#     first_lev= totlev[0]
+#     print(f'Treating level  {var} {first_lev}')
+#     if avedim:
+#         dd = in_data(var,first_lev,**kw).mean(dim=avedim)
+#     else:
+#         dd = in_data(var,first_lev,**kw)
+#     zon=dd.expand_dims('pressure').assign_coords(pressure=[float(totlev[0])])
     
-    totlev.remove(first_lev)
+#     totlev.remove(first_lev)
 
-    for l in totlev:
-        print(f'Treating level  {var} {l}')
-        if avedim:
-            dd = in_data(var,l,**kw).mean(dim=avedim).expand_dims('pressure').assign_coords(pressure=[float(l)])
-        else:
-            dd = in_data(var,l,**kw).expand_dims('pressure').assign_coords(pressure=[float(l)])
-        zon=xr.concat([zon,dd],dim='pressure')
-    return zon
+#     for l in totlev:
+#         print(f'Treating level  {var} {l}')
+#         if avedim:
+#             dd = in_data(var,l,**kw).mean(dim=avedim).expand_dims('pressure').assign_coords(pressure=[float(l)])
+#         else:
+#             dd = in_data(var,l,**kw).expand_dims('pressure').assign_coords(pressure=[float(l)])
+#         zon=xr.concat([zon,dd],dim='pressure')
+#     return zon
 
 @d.get_sections(base='read_ceres', sections=['Parameters', 'Returns'])
 @d.dedent
 def read_ceres(var,lev,period='JAN',epoch='AFT', loc = ' ',averaging=True,verbose=False):
     '''
-    This routine reads monthly data files from monthly ERA5, 
-    optionally combining the backward (1950-1979) and current analysis (1979-2019)
+    This routine reads monthly data files from CERES, 
+    
 
     Parameters
     ----------
@@ -869,4 +880,119 @@ def read_ceres(var,lev,period='JAN',epoch='AFT', loc = ' ',averaging=True,verbos
         
 
     return dat[var]
+def read_GPCP(var,lev,period='JAN',epoch='AFT', loc = ' ',averaging=True,verbose=False):
+    '''
+    This routine reads monthly data files from GPCP
+    
+
+    Parameters
+    ----------
+    var:
+        precipitation
+    lev: 
+        Surface
+    period:
+        Month or season to be selected. For periods across years, i.e. 'DJF' the
+        first and last years are dropped.
+        Values are month or season labels
+        'JFM','AMJ','JAS','OND','DJF','JJA'
+        'JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'
+        'ANN'  -- Entire time series
+    epoch:
+        * 'ALL' -- Entire data series
+    loc:    
+        Location of the root directory for the data set
+    averaging:
+        True/False If averaged output is desired
+    
+    Returns
+    -------
+    data:
+        data in xarray format
+    
+    '''
+    
+    fil = loc +'/Dropbox (CMCC)/DATA/GPCP/precip.mon.mean.nc'
+
+    if epoch == 'ALL':
+        dat = xr.open_dataset(fil).precip
+        startdat =  dat.time[0]
+        enddat =  dat.time[-1]
+    else:
+        raise SystemError(f'Wrong Period choice')
+    if verbose:
+        print(f'Selected data from {dat.time[0].data} to {dat.time[-1].data} \n')
+
+
+    if period != 'ANN':
+        perlab,fr = decode_period(period)
+         #Adjust for period across years
+        if period == 'DJF':        
+            dat=dat.where(dat.time > dat.time[10].data, drop=True).where(dat.time < enddat,drop=True)
+        dat = dat.sel(time=dat.time.dt.month.isin(perlab))
+        #Check for averaging
+        if averaging:
+            dat = dat.coarsen(time=fr).mean()
+        
+
+    return dat
+def select_time(dataset_dates,select=None, period=None):
+    '''
+    Function to create the time range for the data selection.
+    A subperiod can be selected within the data set using `select` and `period`,
+    `select` is the data set interval , `period` is the calendar choice within the data set. 
+    If both are 'none' the entire data set is selected from `dataset_dates` is chosen.
+
+    Parameters
+    ----------
+
+    dataset_dates : list
+        List with the starting and ending dates of the data set
+    select : str
+        Selection of the period within the data set given by `dataset_dates`
+            * ERA5 -- 1940-2022
+            * COBE -- 1891-2020
+            * XXSEC -- 1900-2020
+    period : str
+        Period to be selected
+            * JAN -- January
+            * JUL -- July
+            * ANN -- Annual   
+    '''
+    if select is not None:
+        if select == 'ERA5':
+            tstart = 'MON/1/1940'
+            tend   = 'MON/12/2022'
+        elif select == 'COBE':
+            tstart = 'MON/1/1891'
+            tend   = 'MON/1/2020'
+        elif select == 'XXSEC':
+            tstart = 'MON/1/1900'
+            tend   = 'MON/1/2020'
+        else:
+            ValueError(f'Wrong selection {selection} in `select_time`')
+
+    if period is not None:
+        if period =='JAN':
+            sel_start = tstart.replace('MON','1')
+            sel_end = tend.replace('MON','2')
+            sel_time = pd.date_range(start=sel_start, end=sel_end, freq='12MS')
+        elif period == 'JUL':
+            sel_start = tstart.replace('MON','7')
+            sel_end = tend.replace('MON','8')
+            sel_time = pd.date_range(start=sel_start, end=sel_end, freq='12MS')
+        elif period == 'ANN':
+            sel_start = tstart.replace('MON','1')
+            sel_end = tend.replace('MON','12')
+            sel_time = pd.date_range(start=sel_start, end=sel_end, freq='12MS')
+        else:
+             ValueError(f'Wrong period {period} in `select_time`')
+
+    dstart = dataset_dates[0]
+    dtend = dataset_dates[1]
+    data_time = pd.date_range(start=dstart, end=dtend, freq='1MS')
+
+    return  (data_time, sel_time) if select is not None  else data_time
+
+
         

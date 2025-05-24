@@ -8,41 +8,34 @@ import time
 import matplotlib.pyplot as plt
 import xarray as xr
 
+import sys
+import platform
+import pkg_resources
+
+
 def name_notebook(newname):
     '''
     Change name to Jupyterlab instance
     '''
     Javascript('document.title="{}"'.format(newname))
+def get_values_from_dict(input_dict, keys):
+    '''
+    Get values from dictionary `input_dict` for keys in `keys`
 
+    Parameters
+    ==========
+    input_dict: 
+        Dictionary  
+    keys:
+        List of keys
+    
+    Returns
+    =======
+    List of values
+    
+    '''
+    return [input_dict[key] for key in keys if key in input_dict]
 
-def _showpic(picture_file):
-    """ Show `picture_file` in a widget."""
-
-    with open(picture_file, "rb") as file:
-        (d,type)=os.path.splitext(picture_file)
-        image = file.read()
-        fig=widgets.Image(
-        value=image,
-        format=type[1:3],
-        layout=widgets.Layout(width='800px',height='900px'),)
-        display(fig)
-
-def _showpdf(file_loc):
-    """ Show `file_loc` pdf file in a widget."""
-    file_loc="./"+os.path.basename(file_loc)
-    print(file_loc)
-    display(IFrame(file_loc,width=800,height=800) )
-
-def showfig(pic):
-    """ Show picture in a widget."""   
-    (dum,type)=os.path.splitext(pic)
-    print(type)
-    if type == '.pdf':
-        _showpdf(pic)
-    else:
-        _showpic(pic)
-        print('Displaying '+ pic)
-    print('Stop')
     
 def remove_values_from_list(the_list, val):
     """ Remove value `val` from list `the_list`"""
@@ -240,6 +233,41 @@ def lat_string(lat):
         out = 'Equator'
     
     return out
+
+def get_environment_info(option):
+    '''
+    Get information about the Python environment
+
+    Parameters
+    ==========
+
+    option:
+        String
+        Options are:
+        'interpreter': Get the path of the Python interpreter
+        'version': Get the Python version
+        'packages': Get the list of installed packages
+
+    Returns
+    =======
+
+    Information about the Python environment
+    '''
+    python_executable = sys.executable
+    python_version = platform.python_version()
+    installed_packages = sorted([(d.project_name, d.version) for d in pkg_resources.working_set])
+    match option:
+        case 'interpreter':
+            return python_executable
+        case 'version':
+            return python_version
+        case 'packages':
+            return installed_packages
+        case 'all':
+           return python_executable, python_version, installed_packages
+        case _:
+            print('Choose an option: interpreter, version, packages, all')
+    return 
 
 
 

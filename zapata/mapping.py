@@ -27,6 +27,7 @@ from operator import is_
 from collections import namedtuple
 import cartopy.crs as car
 import cartopy.util as utl
+from cartopy.mpl.geoaxes import GeoAxes
 
 from scipy import integrate
 import numpy as np
@@ -224,7 +225,7 @@ def xmap(data, cont, prol, ax=None, fill=True,contour=True, \
 
     Parameters
     ----------
-    field :
+    data :
         xarray  --  cyclic point added in the routine
     cont :
         * [cmin,cmax,cinc]       fixed increment from cmin to cmax step cinc 
@@ -297,20 +298,9 @@ def xmap(data, cont, prol, ax=None, fill=True,contour=True, \
     defaultLatLabel = [-60.,-30.,0.,30.,60.]
     defaultLonLabel = np.arange(-180,181,30)
 
-    if label_style is not None:
-        opt_label =  label_style
-    else:
-        opt_label =  defaultGridLabels
-    
-    if title is not None:
-        title_text = title
-    else:
-        title_text =  defaultTitle
-
-    if title_style is not None:
-        opt_title =  title_style
-    else:
-        opt_title =  defaultTitleStyle
+    opt_label = {**defaultGridLabels, **label_style}
+    title_text =  {**defaultTitle, **title}
+    opt_title =  {**defaultTitleStyle, **title_style}
     
     if latlabel is not None:
         opt_latlabel =  latlabel
@@ -377,7 +367,7 @@ def xmap(data, cont, prol, ax=None, fill=True,contour=True, \
         print(' Plotting with x limits {}  '.format(xlim)  ) 
         print(' Plotting with y limits {}  '.format(ylim) )
         
-        ax.set_extent(list(xlim+ylim),car.PlateCarree())  # 
+        ax.set_extent([*xlim, *ylim], car.PlateCarree())
         theta = np.linspace(0, 2*np.pi, 100)
         center, radius = [0.5, 0.5], 0.5
         verts = np.vstack([np.sin(theta), np.cos(theta)]).T
@@ -444,11 +434,12 @@ def xmap(data, cont, prol, ax=None, fill=True,contour=True, \
         divider = tl.make_axes_locatable(ax)
         cax = divider.append_axes('right',size="2.5%", pad=0.2, axes_class=plt.Axes)
         ax.get_figure().colorbar(handles['filled'], cax=cax,orientation='vertical')
-    
+
+
     # Choose output
-    Output = namedtuple('Output', 'handles gl' )
+    Output = namedtuple('Output', 'handles gl ax' )
     if custom:
-        return Output(handles,gl)
+        return Output(handles,gl, ax)
     else:
         return handles
 
@@ -692,7 +683,7 @@ def choose_contour(vmin,vmax,cont):
     else:
         cc=10
         #delta = abs(vmax.data-vmin.data)
-        if mp.isclose(vmax.data, vmin.data):
+        if mp.isclose(vmax.values, vmin.values):
             cc = 1
             print(f'Almost constant field {vmax.data}, {vmin.data}, one contours')
         else:
@@ -1279,12 +1270,19 @@ def changebox(ax,choice,linewidth=2,color='black',capstyle='round'):
             sides = [choice]
     else:
         sides = choice
-
+      
     for i in panels:
-        for j in sides:
-            i.spines[j].set_linewidth(linewidth)
-            i.spines[j].set_color(color)
-            i.spines[j].set_capstyle(capstyle)
+        if isinstance(i, GeoAxes): 
+            i.spines['geo'].set_linewidth(linewidth)
+            i.spines['geo'].set_color(color)
+            i.spines['geo'].set_capstyle(capstyle)
+        elif isinstance(i, plt.Axes):
+            for j in sides:
+                i.spines[j].set_linewidth(linewidth)
+                i.spines[j].set_color(color)
+                i.spines[j].set_capstyle(capstyle)
+        else:
+            raise ValueError('Wrong axes type') 
         
     return
 

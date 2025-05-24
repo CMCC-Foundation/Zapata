@@ -187,6 +187,7 @@ def anomaly(var,option='anom',freq='month'):
             deviation_std     Subtract the time mean and normalize by standard deviation
             anom              Compute anomalies from monthly climatology    
             anomstd           Compute standardized anomalies from monthly climatology
+            None              Return unchanged data
             =============     ==========================================================
     freq :  
         Frequency of data   
@@ -215,8 +216,8 @@ def anomaly(var,option='anom',freq='month'):
                 clim,
                 climstd + TINY)
     else:
-        print(' Wrong option in `anomaly` {}'.format(option))
-        raise SystemExit
+        print(f'No option in anomaly return unchanged data')
+        anom=var
 
     return anom
 class Xmat():
