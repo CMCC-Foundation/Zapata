@@ -19,5 +19,5 @@ klus :download:`klus.tar <../resources/klus.tar>`
 
 The packages also need fixed data, especially the the interpolation module, thay can be downloaded at:
 
-data_zapata :download:`data_zapata.zip <../resources/data_zapata.zip>`
+data_zapata `data_zapata.zip <https://github.com/CMCC-Foundation/Zapata/releases/download/v2.0/data_zapata.zip>`__
 
